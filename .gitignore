@@ -1,0 +1,104 @@
+# ==============================================================================
+# Environment Variables & Secrets (CRITICAL FOR PUBLIC REPOS)
+# ==============================================================================
+.env
+.env.*
+*.env
+!.env.example
+
+# ==============================================================================
+# Personal Data & Excel Databases
+# ==============================================================================
+# Prevents personal university application records from ever being committed
+*.xlsx
+*.xls
+*.xlsm
+*.csv
+*.tsv
+*.tmp
+data/
+backups/
+exports/
+university_applications*.xlsx
+*backup*.xlsx
+university_applications_backup.xlsx
+
+# ==============================================================================
+# Personal Documents & Attachments
+# ==============================================================================
+# Protects personal SOPs, CVs, transcripts, certificates, and recommendation letters
+documents/
+attachments/
+uploads/
+*.pdf
+*.docx
+*.doc
+
+# ==============================================================================
+# Signing Keys, Keystores & Credentials
+# ==============================================================================
+*.key
+*.keystore
+*.jks
+*.p8
+*.p12
+*.pem
+*.mobileprovision
+google-services.json
+GoogleService-Info.plist
+
+# ==============================================================================
+# Operating System Files
+# ==============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ==============================================================================
+# IDE & Editor Files
+# ==============================================================================
+*.iml
+*.ipr
+*.iws
+.idea/
+.vscode/
+.atom/
+.history
+.svn/
+.swiftpm/
+
+# ==============================================================================
+# Flutter / Dart / Pub Related
+# ==============================================================================
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+migrate_working_dir/
+
+# ==============================================================================
+# Symbolication & Obfuscation
+# ==============================================================================
+app.*.symbols
+app.*.map.json
+
+# ==============================================================================
+# Android Studio Artifacts
+# ==============================================================================
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
