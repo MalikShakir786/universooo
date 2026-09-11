@@ -953,12 +953,12 @@ class _ApplicationDetailScreenState extends State<ApplicationDetailScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildCard(
-            title: 'All Key Deadlines',
+            title: 'All Key Deadlines & Application Period',
             isDark: isDark,
             child: Column(
               children: [
+                _buildDeadlineRow('Start of Applications', app.startOfApplications, ApplicationUrgency.none),
                 _buildDeadlineRow('Primary Application Deadline', app.applicationDeadline, app.urgency, isPrimary: true),
-                _buildDeadlineRow('Early Deadline', app.earlyDeadline, ApplicationUrgency.none),
                 _buildDeadlineRow('Scholarship Deadline', app.scholarshipDeadline, ApplicationUrgency.none),
                 _buildDeadlineRow('Housing Deadline', app.housingDeadline, ApplicationUrgency.none),
                 _buildDeadlineRow('Visa Application Deadline', app.visaDeadline, ApplicationUrgency.none),

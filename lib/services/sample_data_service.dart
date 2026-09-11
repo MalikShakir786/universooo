@@ -46,7 +46,7 @@ class SampleDataService {
       intake: 'Winter',
       semesterYear: '2026',
       applicationDeadline: DateTime(now.year, now.month + 1, 15).toIso8601String().substring(0, 10),
-      earlyDeadline: DateTime(now.year, now.month, 28).toIso8601String().substring(0, 10),
+      startOfApplications: DateTime(now.year, now.month - 1, 1).toIso8601String().substring(0, 10),
       scholarshipDeadline: DateTime(now.year, now.month + 1, 1).toIso8601String().substring(0, 10),
       housingDeadline: DateTime(now.year, now.month + 2, 1).toIso8601String().substring(0, 10),
       visaDeadline: DateTime(now.year, now.month + 3, 1).toIso8601String().substring(0, 10),
@@ -135,7 +135,7 @@ class SampleDataService {
       intake: 'Fall',
       semesterYear: '2026',
       applicationDeadline: DateTime(now.year, now.month, now.day + 8).toIso8601String().substring(0, 10), // 8 days: Urgent
-      earlyDeadline: DateTime(now.year, now.month, now.day - 5).toIso8601String().substring(0, 10),
+      startOfApplications: DateTime(now.year, now.month - 2, 1).toIso8601String().substring(0, 10),
       scholarshipDeadline: DateTime(now.year, now.month, now.day + 8).toIso8601String().substring(0, 10),
       status: 'Interview',
       priority: 'High',

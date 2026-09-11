@@ -59,9 +59,9 @@ class _ApplicationFormDialogState extends State<ApplicationFormDialog>
   late TextEditingController _languageController;
   late TextEditingController _semesterYearController;
 
-  // Deadlines
+  // Deadlines & Dates
   late TextEditingController _appDeadlineController;
-  late TextEditingController _earlyDeadlineController;
+  late TextEditingController _startOfApplicationsController;
   late TextEditingController _scholarshipDeadlineController;
   late TextEditingController _housingDeadlineController;
   late TextEditingController _visaDeadlineController;
@@ -181,7 +181,7 @@ class _ApplicationFormDialogState extends State<ApplicationFormDialog>
     _semesterYearController = TextEditingController(text: app?.semesterYear ?? '2026');
 
     _appDeadlineController = TextEditingController(text: app?.applicationDeadline ?? '');
-    _earlyDeadlineController = TextEditingController(text: app?.earlyDeadline ?? '');
+    _startOfApplicationsController = TextEditingController(text: app?.startOfApplications ?? '');
     _scholarshipDeadlineController = TextEditingController(text: app?.scholarshipDeadline ?? '');
     _housingDeadlineController = TextEditingController(text: app?.housingDeadline ?? '');
     _visaDeadlineController = TextEditingController(text: app?.visaDeadline ?? '');
@@ -279,7 +279,7 @@ class _ApplicationFormDialogState extends State<ApplicationFormDialog>
     _languageController.dispose();
     _semesterYearController.dispose();
     _appDeadlineController.dispose();
-    _earlyDeadlineController.dispose();
+    _startOfApplicationsController.dispose();
     _scholarshipDeadlineController.dispose();
     _housingDeadlineController.dispose();
     _visaDeadlineController.dispose();
@@ -402,7 +402,7 @@ class _ApplicationFormDialogState extends State<ApplicationFormDialog>
       intake: _intake,
       semesterYear: _semesterYearController.text.trim(),
       applicationDeadline: _appDeadlineController.text.trim(),
-      earlyDeadline: _earlyDeadlineController.text.trim(),
+      startOfApplications: _startOfApplicationsController.text.trim(),
       scholarshipDeadline: _scholarshipDeadlineController.text.trim(),
       housingDeadline: _housingDeadlineController.text.trim(),
       visaDeadline: _visaDeadlineController.text.trim(),
@@ -939,11 +939,26 @@ class _ApplicationFormDialogState extends State<ApplicationFormDialog>
           const SizedBox(height: 18),
           const Divider(),
           const SizedBox(height: 10),
-          const Text('Key Deadlines (YYYY-MM-DD)',
+          const Text('Key Deadlines & Application Period (YYYY-MM-DD)',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           const SizedBox(height: 12),
           Row(
             children: [
+              Expanded(
+                child: TextFormField(
+                  controller: _startOfApplicationsController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    labelText: 'Start of Applications',
+                    hintText: 'Select date',
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.calendar_today, size: 18),
+                      onPressed: () => _selectDate(context, _startOfApplicationsController),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 14),
               Expanded(
                 child: TextFormField(
                   controller: _appDeadlineController,
@@ -954,21 +969,6 @@ class _ApplicationFormDialogState extends State<ApplicationFormDialog>
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.calendar_today, size: 18),
                       onPressed: () => _selectDate(context, _appDeadlineController),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: TextFormField(
-                  controller: _earlyDeadlineController,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'Early Deadline',
-                    hintText: 'Select date',
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.calendar_today, size: 18),
-                      onPressed: () => _selectDate(context, _earlyDeadlineController),
                     ),
                   ),
                 ),

@@ -52,6 +52,7 @@ void main() {
         duration: '2 Years',
         intake: 'Winter',
         semesterYear: '2026',
+        startOfApplications: '2025-11-01',
         applicationDeadline: '2026-05-31',
         status: 'Under Review',
         priority: 'High',
@@ -78,6 +79,8 @@ void main() {
       expect(loadedApp.city, 'Munich');
       expect(loadedApp.courseName, 'M.Sc. Informatics');
       expect(loadedApp.degreeLevel, "Master's");
+      expect(loadedApp.startOfApplications, '2025-11-01');
+      expect(loadedApp.earlyDeadline, '2025-11-01'); // backwards compatible getter
       expect(loadedApp.applicationDeadline, '2026-05-31');
       expect(loadedApp.status, 'Under Review');
       expect(loadedApp.priority, 'High');

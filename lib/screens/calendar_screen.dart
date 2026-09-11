@@ -41,6 +41,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final List<CalendarEventItem> events = [];
 
     for (final app in apps) {
+      if (app.startOfApplications.isNotEmpty) {
+        events.add(CalendarEventItem(
+          date: app.startOfApplications,
+          title: '${app.universityName} (Applications Open)',
+          type: 'Start of Applications',
+          color: AppTheme.macosBlue,
+          application: app,
+        ));
+      }
       if (app.applicationDeadline.isNotEmpty) {
         events.add(CalendarEventItem(
           date: app.applicationDeadline,

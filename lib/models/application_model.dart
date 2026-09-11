@@ -24,9 +24,9 @@ class ApplicationModel {
   final String intake; // Fall, Spring, Summer, Winter, Other
   final String semesterYear;
 
-  // Deadlines
+  // Deadlines & Dates
   final String applicationDeadline; // YYYY-MM-DD
-  final String earlyDeadline;
+  final String startOfApplications; // YYYY-MM-DD
   final String scholarshipDeadline;
   final String housingDeadline;
   final String visaDeadline;
@@ -103,7 +103,7 @@ class ApplicationModel {
     this.intake = 'Fall',
     this.semesterYear = '2026',
     this.applicationDeadline = '',
-    this.earlyDeadline = '',
+    this.startOfApplications = '',
     this.scholarshipDeadline = '',
     this.housingDeadline = '',
     this.visaDeadline = '',
@@ -184,6 +184,10 @@ class ApplicationModel {
     if (days == 1) return '1 day remaining';
     return '$days days remaining';
   }
+
+  /// Compatibility getters for start of applications
+  String get earlyDeadline => startOfApplications;
+  String get startApplicationPeriod => startOfApplications;
 
   /// Whether IELTS score meets the requirement
   bool get isIeltsMet {
@@ -271,7 +275,9 @@ class ApplicationModel {
     String? intake,
     String? semesterYear,
     String? applicationDeadline,
+    String? startOfApplications,
     String? earlyDeadline,
+    String? startApplicationPeriod,
     String? scholarshipDeadline,
     String? housingDeadline,
     String? visaDeadline,
@@ -334,7 +340,10 @@ class ApplicationModel {
       intake: intake ?? this.intake,
       semesterYear: semesterYear ?? this.semesterYear,
       applicationDeadline: applicationDeadline ?? this.applicationDeadline,
-      earlyDeadline: earlyDeadline ?? this.earlyDeadline,
+      startOfApplications: startOfApplications ??
+          startApplicationPeriod ??
+          earlyDeadline ??
+          this.startOfApplications,
       scholarshipDeadline: scholarshipDeadline ?? this.scholarshipDeadline,
       housingDeadline: housingDeadline ?? this.housingDeadline,
       visaDeadline: visaDeadline ?? this.visaDeadline,

@@ -142,6 +142,7 @@ class ComparisonScreen extends StatelessWidget {
                               _buildRow('Degree Level', comparedApps, (a) => Text(a.degreeLevel)),
                               _buildRow('Country & City', comparedApps, (a) => Text('${a.country} ${a.city.isNotEmpty ? '• ${a.city}' : ''}')),
                               _buildRow('Intake & Year', comparedApps, (a) => Text('${a.intake} ${a.semesterYear}')),
+                              _buildRow('Start of Applications', comparedApps, (a) => Text(a.startOfApplications.isEmpty ? 'N/A' : a.startOfApplications)),
                               _buildRow('Application Deadline', comparedApps, (a) => Text(a.applicationDeadline.isEmpty ? 'N/A' : a.applicationDeadline, style: const TextStyle(fontWeight: FontWeight.bold))),
                               _buildRow('Days Remaining', comparedApps, (a) => Text(a.daysRemainingLabel)),
                               _buildRow('Tuition Fee (Per Year)', comparedApps, (a) => Text(a.tuitionFee > 0 ? '${settings.currencySymbol} ${a.tuitionFee.toStringAsFixed(0)}' : 'Free / Nil', style: const TextStyle(fontWeight: FontWeight.bold))),

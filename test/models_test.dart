@@ -68,6 +68,28 @@ void main() {
       expect(appNone.urgency, ApplicationUrgency.none);
     });
 
+    test('startOfApplications and compatibility aliases', () {
+      const app = ApplicationModel(
+        id: '7',
+        universityName: 'Oxford',
+        country: 'UK',
+        courseName: 'CS',
+        startOfApplications: '2025-09-01',
+        applicationDeadline: '2026-01-15',
+      );
+
+      expect(app.startOfApplications, '2025-09-01');
+      expect(app.earlyDeadline, '2025-09-01');
+      expect(app.startApplicationPeriod, '2025-09-01');
+
+      final updated = app.copyWith(startOfApplications: '2025-10-01');
+      expect(updated.startOfApplications, '2025-10-01');
+      expect(updated.earlyDeadline, '2025-10-01');
+
+      final updatedViaAlias = app.copyWith(earlyDeadline: '2025-08-15');
+      expect(updatedViaAlias.startOfApplications, '2025-08-15');
+    });
+
     test('IELTS score matching calculation', () {
       const appMet = ApplicationModel(
         id: '1',
