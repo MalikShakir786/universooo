@@ -460,8 +460,20 @@ class SampleDataService {
     final scholarships = <ScholarshipModel>[
       ScholarshipModel(
         id: uuid.v4(),
+        applicationId: '', // Independent Scholarship
+        scholarshipName: 'Fulbright Foreign Student Fellowship',
+        organization: 'Fulbright Commission / USEFP',
+        amount: 25000.0,
+        deadline: '2026-10-15',
+        eligibility: 'Outstanding academic record, leadership potential, GRE required',
+        status: 'Preparing',
+        notes: 'Independent national competition covering full tuition, living stipend, and airfare.',
+      ),
+      ScholarshipModel(
+        id: uuid.v4(),
         applicationId: appId1,
         scholarshipName: 'DAAD Helmut-Schmidt Programme / Study Scholarship',
+        organization: 'DAAD Germany',
         amount: 3600.0,
         deadline: '2026-10-31',
         eligibility: 'Graduates with outstanding academic performance',
@@ -472,6 +484,7 @@ class SampleDataService {
         id: uuid.v4(),
         applicationId: appId3,
         scholarshipName: 'Clarendon Fund Scholarship',
+        organization: 'University of Oxford',
         amount: 10000.0,
         deadline: '2026-09-14',
         eligibility: 'Automatically considered with course application',
@@ -482,6 +495,7 @@ class SampleDataService {
         id: uuid.v4(),
         applicationId: appId4,
         scholarshipName: 'Melbourne International Undergraduate/Graduate Scholarship',
+        organization: 'University of Melbourne',
         amount: 12000.0,
         deadline: '2026-11-01',
         eligibility: 'High academic merit in previous studies',

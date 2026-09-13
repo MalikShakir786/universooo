@@ -328,7 +328,7 @@ class ExcelDatabaseService {
     // 4. Scholarships Sheet Headers
     final sheetSchol = excel[sheetScholarships];
     final scholHeaders = [
-      'ID', 'Application ID', 'Scholarship Name', 'Amount', 'Deadline', 'Eligibility', 'Status', 'Notes'
+      'ID', 'Application ID', 'Scholarship Name', 'Amount', 'Deadline', 'Eligibility', 'Status', 'Notes', 'Organization'
     ];
     sheetSchol.appendRow(scholHeaders.map((h) => TextCellValue(h)).toList());
 
@@ -777,6 +777,7 @@ class ExcelDatabaseService {
         eligibility: _cellToStr(row.length > 5 ? row[5]?.value : null),
         status: _cellToStr(row.length > 6 ? row[6]?.value : null),
         notes: _cellToStr(row.length > 7 ? row[7]?.value : null),
+        organization: _cellToStr(row.length > 8 ? row[8]?.value : null),
       ));
     }
     return list;
@@ -784,14 +785,22 @@ class ExcelDatabaseService {
 
   Future<void> saveAllScholarships(List<ScholarshipModel> scholarships) async {
     final excel = await _loadExcel();
-    final headerRow = excel[sheetScholarships].rows.isNotEmpty
+    var headerRow = excel[sheetScholarships].rows.isNotEmpty
         ? excel[sheetScholarships].rows[0].map((c) => TextCellValue(_cellToStr(c?.value))).toList()
         : <CellValue>[];
+
+    if (headerRow.isNotEmpty && headerRow.length < 9) {
+      headerRow.add(TextCellValue('Organization'));
+    }
 
     excel.delete(sheetScholarships);
     final newSheet = excel[sheetScholarships];
     if (headerRow.isNotEmpty) {
       newSheet.appendRow(headerRow);
+    } else {
+      newSheet.appendRow([
+        'ID', 'Application ID', 'Scholarship Name', 'Amount', 'Deadline', 'Eligibility', 'Status', 'Notes', 'Organization'
+      ].map((h) => TextCellValue(h)).toList());
     }
 
     for (final s in scholarships) {
@@ -804,6 +813,7 @@ class ExcelDatabaseService {
         TextCellValue(s.eligibility),
         TextCellValue(s.status),
         TextCellValue(s.notes),
+        TextCellValue(s.organization),
       ]);
     }
 

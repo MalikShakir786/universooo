@@ -1,7 +1,8 @@
 class ScholarshipModel {
   final String id;
-  final String applicationId;
+  final String applicationId; // Empty string if independent scholarship
   final String scholarshipName;
+  final String organization; // Awarding body / organization / provider
   final double amount;
   final String deadline;
   final String eligibility;
@@ -10,8 +11,9 @@ class ScholarshipModel {
 
   const ScholarshipModel({
     required this.id,
-    required this.applicationId,
+    this.applicationId = '',
     required this.scholarshipName,
+    this.organization = '',
     this.amount = 0.0,
     this.deadline = '',
     this.eligibility = '',
@@ -19,10 +21,13 @@ class ScholarshipModel {
     this.notes = '',
   });
 
+  bool get isIndependent => applicationId.trim().isEmpty;
+
   ScholarshipModel copyWith({
     String? id,
     String? applicationId,
     String? scholarshipName,
+    String? organization,
     double? amount,
     String? deadline,
     String? eligibility,
@@ -33,6 +38,7 @@ class ScholarshipModel {
       id: id ?? this.id,
       applicationId: applicationId ?? this.applicationId,
       scholarshipName: scholarshipName ?? this.scholarshipName,
+      organization: organization ?? this.organization,
       amount: amount ?? this.amount,
       deadline: deadline ?? this.deadline,
       eligibility: eligibility ?? this.eligibility,

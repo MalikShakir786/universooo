@@ -848,6 +848,14 @@ class ApplicationController extends ChangeNotifier {
     return _scholarships.where((s) => s.applicationId == applicationId).toList();
   }
 
+  List<ScholarshipModel> get independentScholarships {
+    return _scholarships.where((s) => s.isIndependent).toList();
+  }
+
+  List<ScholarshipModel> get linkedScholarships {
+    return _scholarships.where((s) => !s.isIndependent).toList();
+  }
+
   Future<void> addScholarship(ScholarshipModel scholarship) async {
     _scholarships.add(scholarship);
     notifyListeners();

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../controllers/application_controller.dart';
 import '../models/application_model.dart';
+import '../models/scholarship_model.dart';
 import '../theme/app_theme.dart';
 
 class CalendarEventItem {
@@ -10,14 +11,16 @@ class CalendarEventItem {
   final String title;
   final String type; // Application, Scholarship, Visa, Decision, Interview
   final Color color;
-  final ApplicationModel application;
+  final ApplicationModel? application;
+  final String? subtitle;
 
   const CalendarEventItem({
     required this.date,
     required this.title,
     required this.type,
     required this.color,
-    required this.application,
+    this.application,
+    this.subtitle,
   });
 }
 
@@ -37,7 +40,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   DateTime _currentMonth = DateTime(DateTime.now().year, DateTime.now().month, 1);
   DateTime? _selectedDate;
 
-  List<CalendarEventItem> _extractEvents(List<ApplicationModel> apps) {
+  List<CalendarEventItem> _extractEvents(List<ApplicationModel> apps, List<ScholarshipModel> scholarships) {
     final List<CalendarEventItem> events = [];
 
     for (final app in apps) {
@@ -88,6 +91,27 @@ class _CalendarScreenState extends State<CalendarScreen> {
       }
     }
 
+    // Add independent scholarships and additional tracked scholarships
+    for (final s in scholarships) {
+      if (s.deadline.isNotEmpty) {
+        final app = apps.where((a) => a.id == s.applicationId).firstOrNull;
+        // Avoid duplicate if already tracked by app.scholarshipDeadline with same date
+        final isDup = app != null && app.scholarshipDeadline == s.deadline;
+        if (!isDup) {
+          events.add(CalendarEventItem(
+            date: s.deadline,
+            title: s.scholarshipName,
+            type: s.isIndependent ? 'Independent Scholarship' : 'Scholarship Deadline',
+            color: s.isIndependent ? AppTheme.macosPurple : AppTheme.macosIndigo,
+            application: app,
+            subtitle: s.isIndependent
+                ? (s.organization.isNotEmpty ? s.organization : 'External Funding Award')
+                : '${app?.universityName ?? ""} • ${app?.courseName ?? ""}',
+          ));
+        }
+      }
+    }
+
     return events;
   }
 
@@ -95,7 +119,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final controller = Provider.of<ApplicationController>(context);
-    final allEvents = _extractEvents(controller.applications);
+    final allEvents = _extractEvents(controller.applications, controller.scholarships);
 
     final daysInMonth = DateTime(_currentMonth.year, _currentMonth.month + 1, 0).day;
     final firstWeekday = _currentMonth.weekday; // 1 = Monday, 7 = Sunday
@@ -168,11 +192,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
             Row(
               children: [
                 _buildLegendItem('Application Deadline', AppTheme.macosRed),
-                const SizedBox(width: 16),
+                const SizedBox(width: 14),
                 _buildLegendItem('Scholarship Deadline', AppTheme.macosIndigo),
-                const SizedBox(width: 16),
+                const SizedBox(width: 14),
+                _buildLegendItem('Independent Scholarship', AppTheme.macosPurple),
+                const SizedBox(width: 14),
                 _buildLegendItem('Visa Deadline', AppTheme.macosOrange),
-                const SizedBox(width: 16),
+                const SizedBox(width: 14),
                 _buildLegendItem('Decision Expected', AppTheme.macosGreen),
               ],
             ),
@@ -355,7 +381,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                     itemBuilder: (ctx, i) {
                                       final ev = selectedEvents[i];
                                       return InkWell(
-                                        onTap: () => widget.onOpenApplication(ev.application.id),
+                                        onTap: ev.application != null
+                                            ? () => widget.onOpenApplication(ev.application!.id)
+                                            : null,
                                         borderRadius: BorderRadius.circular(8),
                                         child: Container(
                                           padding: const EdgeInsets.all(12),
@@ -395,11 +423,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                               ),
                                               const SizedBox(height: 6),
                                               Text(
-                                                ev.application.universityName,
+                                                ev.application?.universityName ?? ev.title,
                                                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                                               ),
                                               Text(
-                                                ev.application.courseName,
+                                                ev.subtitle ?? ev.application?.courseName ?? '',
                                                 style: TextStyle(
                                                   fontSize: 11.5,
                                                   color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),

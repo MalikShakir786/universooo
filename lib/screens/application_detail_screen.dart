@@ -8,11 +8,11 @@ import '../models/application_model.dart';
 import '../models/contact_model.dart';
 import '../models/country_stat_model.dart';
 import '../models/document_model.dart';
-import '../models/scholarship_model.dart';
 import '../models/status_history_model.dart';
 import '../theme/app_theme.dart';
 import '../widgets/application_form_dialog.dart';
 import '../widgets/duplicate_application_dialog.dart';
+import '../widgets/scholarship_form_dialog.dart';
 import '../widgets/status_badge.dart';
 import '../widgets/urgency_badge.dart';
 
@@ -197,94 +197,10 @@ class _ApplicationDetailScreenState extends State<ApplicationDetailScreen>
   }
 
   void _showAddScholarshipDialog(BuildContext context, String applicationId) {
-    final nameCtrl = TextEditingController();
-    final amountCtrl = TextEditingController();
-    final deadlineCtrl = TextEditingController();
-    final notesCtrl = TextEditingController();
-    String status = 'Researching';
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Track Scholarship'),
-        content: SizedBox(
-          width: 420,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Scholarship Name *',
-                  hintText: 'e.g. Merit Fellowship',
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: amountCtrl,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      decoration: const InputDecoration(labelText: 'Amount'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      controller: deadlineCtrl,
-                      decoration: const InputDecoration(labelText: 'Deadline (YYYY-MM-DD)'),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                initialValue: status,
-                decoration: const InputDecoration(labelText: 'Scholarship Status'),
-                items: [
-                  'Researching',
-                  'Eligible',
-                  'Preparing',
-                  'Applied',
-                  'Under Review',
-                  'Awarded',
-                  'Rejected',
-                ].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
-                onChanged: (val) {
-                  if (val != null) status = val;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: notesCtrl,
-                decoration: const InputDecoration(labelText: 'Notes / Eligibility'),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () {
-              if (nameCtrl.text.trim().isEmpty) return;
-              Provider.of<ApplicationController>(context, listen: false).addScholarship(
-                ScholarshipModel(
-                  id: const Uuid().v4(),
-                  applicationId: applicationId,
-                  scholarshipName: nameCtrl.text.trim(),
-                  amount: double.tryParse(amountCtrl.text) ?? 0.0,
-                  deadline: deadlineCtrl.text.trim(),
-                  status: status,
-                  notes: notesCtrl.text.trim(),
-                ),
-              );
-              Navigator.of(ctx).pop();
-            },
-            child: const Text('Save Scholarship'),
-          ),
-        ],
-      ),
+    showScholarshipFormDialog(
+      context,
+      initialApplicationId: applicationId,
+      lockApplication: true,
     );
   }
 
@@ -1088,6 +1004,8 @@ class _ApplicationDetailScreenState extends State<ApplicationDetailScreen>
                   trailing: StatusBadge(status: s.status),
                   child: Column(
                     children: [
+                      if (s.organization.isNotEmpty)
+                        _buildDetailRow('Awarding Body', s.organization),
                       _buildDetailRow('Award Amount', '$currency ${s.amount.toStringAsFixed(0)}', isBold: true),
                       _buildDetailRow('Deadline', s.deadline.isEmpty ? 'None' : s.deadline),
                       _buildDetailRow('Eligibility', s.eligibility.isEmpty ? 'See requirements' : s.eligibility),
@@ -1097,7 +1015,18 @@ class _ApplicationDetailScreenState extends State<ApplicationDetailScreen>
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           IconButton(
+                            icon: const Icon(Icons.edit_outlined, size: 18),
+                            tooltip: 'Edit Scholarship',
+                            onPressed: () => showScholarshipFormDialog(
+                              context,
+                              initialScholarship: s,
+                              initialApplicationId: app.id,
+                              lockApplication: true,
+                            ),
+                          ),
+                          IconButton(
                             icon: const Icon(Icons.delete_outline, size: 18),
+                            tooltip: 'Delete Scholarship',
                             onPressed: () => controller.deleteScholarship(s.id),
                           ),
                         ],
