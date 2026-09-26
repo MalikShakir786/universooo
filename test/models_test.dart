@@ -81,6 +81,7 @@ void main() {
       expect(app.startOfApplications, '2025-09-01');
       expect(app.earlyDeadline, '2025-09-01');
       expect(app.startApplicationPeriod, '2025-09-01');
+      expect(app.applicationPeriodLabel, '2025-09-01 → 2026-01-15');
 
       final updated = app.copyWith(startOfApplications: '2025-10-01');
       expect(updated.startOfApplications, '2025-10-01');
@@ -88,6 +89,34 @@ void main() {
 
       final updatedViaAlias = app.copyWith(earlyDeadline: '2025-08-15');
       expect(updatedViaAlias.startOfApplications, '2025-08-15');
+
+      const appOnlyStart = ApplicationModel(
+        id: '8',
+        universityName: 'Cambridge',
+        country: 'UK',
+        courseName: 'CS',
+        startOfApplications: '2026-03-01',
+      );
+      expect(appOnlyStart.applicationPeriodLabel, 'Opens 2026-03-01');
+
+      const appOnlyDeadline = ApplicationModel(
+        id: '9',
+        universityName: 'MIT',
+        country: 'USA',
+        courseName: 'CS',
+        applicationDeadline: '2026-05-01',
+      );
+      expect(appOnlyDeadline.applicationPeriodLabel, 'Deadline: 2026-05-01');
+
+      const appEmpty = ApplicationModel(
+        id: '10',
+        universityName: 'Stanford',
+        country: 'USA',
+        courseName: 'CS',
+      );
+      expect(appEmpty.applicationPeriodLabel, 'No dates set');
+      expect(appEmpty.daysUntilOpen, isNull);
+      expect(appEmpty.applicationOpeningLabel, isNull);
     });
 
     test('IELTS score matching calculation', () {

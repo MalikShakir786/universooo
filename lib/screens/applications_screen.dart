@@ -307,7 +307,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
               DataColumn(label: Text('University & Course', style: TextStyle(fontWeight: FontWeight.bold))),
               DataColumn(label: Text('Country & City', style: TextStyle(fontWeight: FontWeight.bold))),
               DataColumn(label: Text('Intake / Degree', style: TextStyle(fontWeight: FontWeight.bold))),
-              DataColumn(label: Text('Deadline & Countdown', style: TextStyle(fontWeight: FontWeight.bold))),
+              DataColumn(label: Text('Period & Deadline', style: TextStyle(fontWeight: FontWeight.bold))),
               DataColumn(label: Text('IELTS Req', style: TextStyle(fontWeight: FontWeight.bold))),
               DataColumn(label: Text('Status', style: TextStyle(fontWeight: FontWeight.bold))),
               DataColumn(label: Text('Priority', style: TextStyle(fontWeight: FontWeight.bold))),
@@ -360,11 +360,43 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                   ),
                   DataCell(Text('${app.intake} ${app.semesterYear} (${app.degreeLevel})')),
                   DataCell(
-                    Row(
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(app.applicationDeadline.isEmpty ? 'No date' : app.applicationDeadline),
-                        const SizedBox(width: 6),
-                        UrgencyBadge(urgency: app.urgency, customLabel: app.daysRemainingLabel),
+                        if (app.startOfApplications.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 2),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.play_circle_outline,
+                                  size: 11,
+                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Opens: ${app.startOfApplications}',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              app.applicationDeadline.isEmpty ? 'No date' : app.applicationDeadline,
+                              style: const TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                            const SizedBox(width: 6),
+                            UrgencyBadge(urgency: app.urgency, customLabel: app.daysRemainingLabel),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -465,7 +497,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
             crossAxisCount: crossAxisCount,
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
-            childAspectRatio: 1.45,
+            childAspectRatio: 1.32,
           ),
           itemCount: apps.length,
           itemBuilder: (ctx, i) {
@@ -557,15 +589,65 @@ class _ApplicationsScreenState extends State<ApplicationsScreen> {
                       ],
                     ),
 
-                    // Deadline & Readiness
+                    // Period, Deadline & Readiness
                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              app.applicationDeadline.isEmpty ? 'No deadline' : app.applicationDeadline,
-                              style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w500),
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.play_circle_outline,
+                                  size: 12,
+                                  color: AppTheme.macosBlue,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Opens: ${app.startOfApplications.isNotEmpty ? app.startOfApplications : 'Open / Rolling'}',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (app.startOfApplications.isNotEmpty && app.daysUntilOpen != null && app.daysUntilOpen! > 0)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.macosBlue.withAlpha(25),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  'Opens in ${app.daysUntilOpen}d',
+                                  style: const TextStyle(
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.macosBlue,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 3),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.event_available,
+                                  size: 12,
+                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  app.applicationDeadline.isEmpty ? 'No deadline' : 'Deadline: ${app.applicationDeadline}',
+                                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600),
+                                ),
+                              ],
                             ),
                             UrgencyBadge(urgency: app.urgency, customLabel: app.daysRemainingLabel),
                           ],

@@ -453,6 +453,29 @@ class _ApplicationDetailScreenState extends State<ApplicationDetailScreen>
                                   : const Color(0xFF64748B),
                             ),
                           ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              const Icon(Icons.play_circle_outline, size: 13, color: AppTheme.macosBlue),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Opens: ${app.startOfApplications.isNotEmpty ? app.startOfApplications : 'Open / Rolling'}',
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Icon(Icons.event_available, size: 13, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+                              const SizedBox(width: 4),
+                              Text(
+                                app.applicationDeadline.isNotEmpty
+                                    ? 'Deadline: ${app.applicationDeadline}'
+                                    : 'No deadline set',
+                                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -616,6 +639,8 @@ class _ApplicationDetailScreenState extends State<ApplicationDetailScreen>
                           _buildDetailRow('Duration / Credits', '${app.duration} • ${app.credits}'),
                           _buildDetailRow('Instruction Language', app.language),
                           _buildDetailRow('Intake / Semester', '${app.intake} ${app.semesterYear}'),
+                          _buildDetailRow('Start of Applications', app.startOfApplications.isEmpty ? 'Open / Rolling' : app.startOfApplications),
+                          _buildDetailRow('Application Deadline', app.applicationDeadline.isEmpty ? 'No deadline set' : app.applicationDeadline, isBold: true),
                           _buildDetailRow('Application Email Used', app.applicationEmail.isEmpty ? 'None selected' : app.applicationEmail),
                         ],
                       ),

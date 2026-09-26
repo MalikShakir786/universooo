@@ -189,6 +189,42 @@ class ApplicationModel {
   String get earlyDeadline => startOfApplications;
   String get startApplicationPeriod => startOfApplications;
 
+  /// Calculate days remaining until application opens
+  int? get daysUntilOpen {
+    if (startOfApplications.trim().isEmpty) return null;
+    try {
+      final start = DateTime.parse(startOfApplications.trim());
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final startDay = DateTime(start.year, start.month, start.day);
+      return startDay.difference(today).inDays;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Formatted period representation (e.g., '2026-01-01 → 2026-04-15' or 'Opens 2026-01-01')
+  String get applicationPeriodLabel {
+    if (startOfApplications.isNotEmpty && applicationDeadline.isNotEmpty) {
+      return '$startOfApplications → $applicationDeadline';
+    } else if (startOfApplications.isNotEmpty) {
+      return 'Opens $startOfApplications';
+    } else if (applicationDeadline.isNotEmpty) {
+      return 'Deadline: $applicationDeadline';
+    }
+    return 'No dates set';
+  }
+
+  /// Human-readable label for opening status
+  String? get applicationOpeningLabel {
+    final days = daysUntilOpen;
+    if (days == null) return null;
+    if (days > 1) return 'Opens in ${days}d';
+    if (days == 1) return 'Opens tomorrow';
+    if (days == 0) return 'Opens today!';
+    return 'Open now';
+  }
+
   /// Whether IELTS score meets the requirement
   bool get isIeltsMet {
     if (!ieltsRequired) return true;

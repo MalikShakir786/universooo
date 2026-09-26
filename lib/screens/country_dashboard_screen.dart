@@ -338,24 +338,34 @@ class _CountryDashboardScreenState extends State<CountryDashboardScreen> {
               ),
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(flag, style: const TextStyle(fontSize: 36)),
-                const SizedBox(width: 14),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
-                    Text(
-                      '$country Overview',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '${apps.length} application(s) tracked across ${univGroups.length} universities in $country',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                      ),
+                    Text(flag, style: const TextStyle(fontSize: 36)),
+                    const SizedBox(width: 14),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '$country Overview',
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '${apps.length} application(s) tracked across ${univGroups.length} universities in $country',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
+                ),
+                FilledButton.tonalIcon(
+                  icon: const Icon(Icons.filter_alt_outlined, size: 16),
+                  label: const Text('View All in Applications'),
+                  onPressed: () => widget.onFilterCountry(country),
                 ),
               ],
             ),
@@ -389,22 +399,105 @@ class _CountryDashboardScreenState extends State<CountryDashboardScreen> {
                   ),
                   subtitle: Text('${programs.length} program(s) tracked'),
                   children: programs.map((prog) {
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                      title: Text(
-                        prog.courseName,
-                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5),
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF252934) : const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF333846) : const Color(0xFFE2E8F0),
+                        ),
                       ),
-                      subtitle: Text('${prog.degreeLevel} • ${prog.intake} ${prog.semesterYear}'),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
+                      child: Row(
                         children: [
-                          StatusBadge(status: prog.status),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      prog.courseName,
+                                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '• ${prog.degreeLevel} • ${prog.intake} ${prog.semesterYear}',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Wrap(
+                                  spacing: 14,
+                                  runSpacing: 4,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.play_circle_outline, size: 13, color: AppTheme.macosBlue),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Opens: ${prog.startOfApplications.isNotEmpty ? prog.startOfApplications : 'Open / Rolling'}',
+                                          style: TextStyle(
+                                            fontSize: 11.5,
+                                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                          ),
+                                        ),
+                                        if (prog.startOfApplications.isNotEmpty && prog.daysUntilOpen != null && prog.daysUntilOpen! > 0) ...[
+                                          const SizedBox(width: 6),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.macosBlue.withAlpha(25),
+                                              borderRadius: BorderRadius.circular(4),
+                                            ),
+                                            child: Text(
+                                              'Opens in ${prog.daysUntilOpen}d',
+                                              style: const TextStyle(
+                                                fontSize: 9.5,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppTheme.macosBlue,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.event_available, size: 13, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          prog.applicationDeadline.isNotEmpty
+                                              ? 'Deadline: ${prog.applicationDeadline}'
+                                              : 'No deadline set',
+                                          style: const TextStyle(
+                                            fontSize: 11.5,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          StatusBadge(status: prog.status, fontSize: 11),
                           const SizedBox(width: 8),
                           UrgencyBadge(urgency: prog.urgency, customLabel: prog.daysRemainingLabel),
                           const SizedBox(width: 8),
                           IconButton(
                             icon: const Icon(Icons.arrow_forward, size: 16),
+                            tooltip: 'Open Application Details',
                             onPressed: () => widget.onOpenApplication(prog.id),
                           ),
                         ],

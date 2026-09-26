@@ -335,7 +335,7 @@ class DashboardScreen extends StatelessWidget {
                                   _buildTableHeader('University'),
                                   _buildTableHeader('Course'),
                                   _buildTableHeader('Country'),
-                                  _buildTableHeader('Deadline'),
+                                  _buildTableHeader('Period / Deadline'),
                                   _buildTableHeader('Days Left'),
                                   _buildTableHeader('Status'),
                                 ],
@@ -392,10 +392,49 @@ class DashboardScreen extends StatelessWidget {
                                       ),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 10),
-                                      child: Text(
-                                        app.applicationDeadline,
-                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                                      padding: const EdgeInsets.symmetric(vertical: 8),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          if (app.startOfApplications.isNotEmpty)
+                                            Padding(
+                                              padding: const EdgeInsets.only(bottom: 2),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(
+                                                    Icons.play_circle_outline,
+                                                    size: 11,
+                                                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                                  ),
+                                                  const SizedBox(width: 3),
+                                                  Text(
+                                                    'Opens: ${app.startOfApplications}',
+                                                    style: TextStyle(
+                                                      fontSize: 10.5,
+                                                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.event_available,
+                                                size: 11,
+                                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                              ),
+                                              const SizedBox(width: 3),
+                                              Text(
+                                                app.applicationDeadline.isEmpty ? 'No date' : app.applicationDeadline,
+                                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ),
                                     Padding(
@@ -582,7 +621,7 @@ class DashboardScreen extends StatelessWidget {
                           physics: const NeverScrollableScrollPhysics(),
                           crossAxisSpacing: 14,
                           mainAxisSpacing: 14,
-                          childAspectRatio: 1.6,
+                          childAspectRatio: 1.45,
                           children: recentCards.map((app) {
                             return InkWell(
                               onTap: () => onOpenApplication(app.id),
@@ -641,22 +680,55 @@ class DashboardScreen extends StatelessWidget {
                                         ),
                                       ],
                                     ),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          '${app.intake} ${app.semesterYear}',
-                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              '${app.intake} ${app.semesterYear}',
+                                              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w500),
+                                            ),
+                                            Text(
+                                              app.daysRemaining != null ? '${app.daysRemaining}d left' : 'No date',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w600,
+                                                color: app.urgency == ApplicationUrgency.critical || app.urgency == ApplicationUrgency.overdue
+                                                    ? AppTheme.macosRed
+                                                    : AppTheme.macosBlue,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        Text(
-                                          app.daysRemaining != null ? '${app.daysRemaining}d left' : 'No date',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600,
-                                            color: app.urgency == ApplicationUrgency.critical || app.urgency == ApplicationUrgency.overdue
-                                                ? AppTheme.macosRed
-                                                : AppTheme.macosBlue,
-                                          ),
+                                        const SizedBox(height: 3),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                app.startOfApplications.isNotEmpty
+                                                    ? 'Opens: ${app.startOfApplications}'
+                                                    : 'Open / Rolling',
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            Text(
+                                              app.applicationDeadline.isNotEmpty
+                                                  ? 'Due: ${app.applicationDeadline}'
+                                                  : 'No deadline',
+                                              style: TextStyle(
+                                                fontSize: 10.5,
+                                                fontWeight: FontWeight.w600,
+                                                color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
