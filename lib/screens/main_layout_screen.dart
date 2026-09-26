@@ -13,6 +13,7 @@ import 'comparison_screen.dart';
 import 'country_dashboard_screen.dart';
 import 'dashboard_screen.dart';
 import 'documents_hub_screen.dart';
+import 'portals_screen.dart';
 import 'scholarships_screen.dart';
 import 'settings_screen.dart';
 
@@ -23,6 +24,7 @@ enum NavigationSection {
   countries,
   documents,
   scholarships,
+  portals,
   comparison,
   analytics,
   settings,
@@ -272,6 +274,16 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                   label: 'Scholarships',
                   badgeText: controller.scholarships.isNotEmpty
                       ? '${controller.scholarships.length}'
+                      : null,
+                  isDark: isDark,
+                ),
+                _buildNavItem(
+                  section: NavigationSection.portals,
+                  icon: Icons.language_outlined,
+                  activeIcon: Icons.language,
+                  label: 'Direct Links',
+                  badgeText: controller.portalLinks.isNotEmpty
+                      ? '${controller.portalLinks.length}'
                       : null,
                   isDark: isDark,
                 ),
@@ -592,6 +604,8 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
         return ScholarshipsScreen(
           onOpenApplication: _openApplicationDetail,
         );
+      case NavigationSection.portals:
+        return const PortalsScreen();
       case NavigationSection.comparison:
         return ComparisonScreen(
           onOpenApplication: _openApplicationDetail,

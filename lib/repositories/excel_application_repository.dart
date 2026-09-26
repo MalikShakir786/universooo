@@ -7,6 +7,7 @@ import '../models/contact_model.dart';
 import '../models/email_account_model.dart';
 import '../models/country_stat_model.dart';
 import '../models/app_settings_model.dart';
+import '../models/portal_link_model.dart';
 import '../services/excel_database_service.dart';
 import 'application_repository.dart';
 
@@ -25,6 +26,13 @@ class ExcelApplicationRepository implements ApplicationRepository {
   @override
   Future<void> saveApplications(List<ApplicationModel> applications) =>
       _service.saveAllApplications(applications);
+
+  @override
+  Future<List<PortalLinkModel>> loadPortalLinks() => _service.loadPortalLinks();
+
+  @override
+  Future<void> savePortalLinks(List<PortalLinkModel> links) =>
+      _service.saveAllPortalLinks(links);
 
   @override
   Future<void> addApplication(ApplicationModel application) async {

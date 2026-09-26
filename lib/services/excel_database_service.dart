@@ -12,6 +12,7 @@ import '../models/contact_model.dart';
 import '../models/email_account_model.dart';
 import '../models/country_stat_model.dart';
 import '../models/app_settings_model.dart';
+import '../models/portal_link_model.dart';
 
 class ExcelDatabaseService {
   static final ExcelDatabaseService instance = ExcelDatabaseService._internal();
@@ -28,6 +29,7 @@ class ExcelDatabaseService {
   static const String sheetEmails = 'Emails';
   static const String sheetCountries = 'Countries';
   static const String sheetSettings = 'Settings';
+  static const String sheetPortals = 'Portals';
 
   void setCustomPath(String path) {
     _customDatabasePath = path.trim().isEmpty ? null : path.trim();
@@ -359,6 +361,13 @@ class ExcelDatabaseService {
       'Setting', 'Value'
     ];
     sheetSet.appendRow(setHeaders.map((h) => TextCellValue(h)).toList());
+
+    // 9. Portals Sheet Headers
+    final sheetPor = excel[sheetPortals];
+    final porHeaders = [
+      'ID', 'Title', 'URL', 'Description', 'Category', 'Country', 'Is Pinned', 'Created At', 'Updated At'
+    ];
+    sheetPor.appendRow(porHeaders.map((h) => TextCellValue(h)).toList());
 
     await _atomicWriteExcel(excel, file);
   }
@@ -1030,6 +1039,81 @@ class ExcelDatabaseService {
       newSheet.appendRow([
         TextCellValue(entry.key),
         TextCellValue(entry.value),
+      ]);
+    }
+
+    final file = await getDatabaseFile();
+    await _atomicWriteExcel(excel, file);
+  }
+
+  // ==========================================
+  // PORTALS & DIRECT LINKS CRUD (Sheet 9)
+  // ==========================================
+
+  Future<List<PortalLinkModel>> loadPortalLinks() async {
+    final excel = await _loadExcel();
+    if (!excel.sheets.containsKey(sheetPortals)) {
+      return [];
+    }
+    final sheet = excel[sheetPortals];
+    final List<PortalLinkModel> list = [];
+
+    if (sheet.rows.length <= 1) return list;
+
+    for (int i = 1; i < sheet.rows.length; i++) {
+      final row = sheet.rows[i];
+      if (row.isEmpty) continue;
+      final id = _cellToStr(row.isNotEmpty ? row[0]?.value : null);
+      if (id.isEmpty) continue;
+
+      list.add(PortalLinkModel(
+        id: id,
+        title: _cellToStr(row.length > 1 ? row[1]?.value : null),
+        url: _cellToStr(row.length > 2 ? row[2]?.value : null),
+        description: _cellToStr(row.length > 3 ? row[3]?.value : null),
+        category: _cellToStr(row.length > 4 ? row[4]?.value : null).isEmpty
+            ? 'Application Portal'
+            : _cellToStr(row.length > 4 ? row[4]?.value : null),
+        country: _cellToStr(row.length > 5 ? row[5]?.value : null),
+        isPinned: _cellToStr(row.length > 6 ? row[6]?.value : null).toLowerCase() == 'true',
+        createdAt: _cellToStr(row.length > 7 ? row[7]?.value : null),
+        updatedAt: _cellToStr(row.length > 8 ? row[8]?.value : null),
+      ));
+    }
+    return list;
+  }
+
+  Future<void> saveAllPortalLinks(List<PortalLinkModel> links) async {
+    final excel = await _loadExcel();
+    final headerRow = excel.sheets.containsKey(sheetPortals) && excel[sheetPortals].rows.isNotEmpty
+        ? excel[sheetPortals].rows[0].map((c) => TextCellValue(_cellToStr(c?.value))).toList()
+        : [
+            TextCellValue('ID'),
+            TextCellValue('Title'),
+            TextCellValue('URL'),
+            TextCellValue('Description'),
+            TextCellValue('Category'),
+            TextCellValue('Country'),
+            TextCellValue('Is Pinned'),
+            TextCellValue('Created At'),
+            TextCellValue('Updated At'),
+          ];
+
+    excel.delete(sheetPortals);
+    final newSheet = excel[sheetPortals];
+    newSheet.appendRow(headerRow);
+
+    for (final l in links) {
+      newSheet.appendRow([
+        TextCellValue(l.id),
+        TextCellValue(l.title),
+        TextCellValue(l.url),
+        TextCellValue(l.description),
+        TextCellValue(l.category),
+        TextCellValue(l.country),
+        TextCellValue(l.isPinned ? 'true' : 'false'),
+        TextCellValue(l.createdAt),
+        TextCellValue(l.updatedAt),
       ]);
     }
 

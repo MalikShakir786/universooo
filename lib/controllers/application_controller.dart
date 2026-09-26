@@ -7,6 +7,7 @@ import '../models/scholarship_model.dart';
 import '../models/contact_model.dart';
 import '../models/email_account_model.dart';
 import '../models/country_stat_model.dart';
+import '../models/portal_link_model.dart';
 import '../repositories/application_repository.dart';
 
 class ApplicationController extends ChangeNotifier {
@@ -20,6 +21,7 @@ class ApplicationController extends ChangeNotifier {
   List<ContactModel> _contacts = [];
   List<EmailAccountModel> _emails = [];
   List<CountryStatModel> _userCountries = [];
+  List<PortalLinkModel> _portalLinks = [];
 
   bool _isLoading = false;
   bool _isSaving = false;
@@ -52,6 +54,7 @@ class ApplicationController extends ChangeNotifier {
   List<ContactModel> get contacts => _contacts;
   List<EmailAccountModel> get emails => _emails;
   List<CountryStatModel> get userCountries => _userCountries;
+  List<PortalLinkModel> get portalLinks => _portalLinks;
 
   List<String> get availableCountries {
     final set = <String>{};
@@ -101,6 +104,14 @@ class ApplicationController extends ChangeNotifier {
       _contacts = await _repository.loadContacts();
       _emails = await _repository.loadEmails();
       _userCountries = await _repository.loadCountries();
+      _portalLinks = await _repository.loadPortalLinks();
+
+      // Seed initial portals if none exist
+      if (_portalLinks.isEmpty) {
+        _portalLinks = _getDefaultPortalLinks();
+        await _repository.savePortalLinks(_portalLinks);
+      }
+
       await _syncCountryStats();
     } catch (e) {
       _errorMessage = "Failed to load applications: $e";
@@ -914,5 +925,101 @@ class ApplicationController extends ChangeNotifier {
     _emails.removeWhere((e) => e.id == id);
     notifyListeners();
     await _repository.saveEmails(_emails);
+  }
+
+  // --- Sub-Entity CRUD: Portals & Direct Links ---
+  List<PortalLinkModel> _getDefaultPortalLinks() {
+    final now = DateTime.now().toIso8601String();
+    return [
+      PortalLinkModel(
+        id: _uuid.v4(),
+        title: 'Uni-Assist Portal',
+        url: 'https://my.uni-assist.de',
+        description: 'German universities application portal for international students credential evaluation and direct submission.',
+        category: 'Application Portal',
+        country: 'Germany',
+        isPinned: true,
+        createdAt: now,
+        updatedAt: now,
+      ),
+      PortalLinkModel(
+        id: _uuid.v4(),
+        title: 'UCAS Undergraduate & Postgraduate',
+        url: 'https://www.ucas.com',
+        description: 'Centralized admissions service for higher education courses across universities and colleges in the United Kingdom.',
+        category: 'Application Portal',
+        country: 'United Kingdom',
+        isPinned: true,
+        createdAt: now,
+        updatedAt: now,
+      ),
+      PortalLinkModel(
+        id: _uuid.v4(),
+        title: 'Common Application',
+        url: 'https://www.commonapp.org',
+        description: 'Undergraduate college admission application platform used by more than 1,000 colleges and universities in the US and globally.',
+        category: 'Application Portal',
+        country: 'United States',
+        isPinned: true,
+        createdAt: now,
+        updatedAt: now,
+      ),
+      PortalLinkModel(
+        id: _uuid.v4(),
+        title: 'DAAD Scholarship Database',
+        url: 'https://www.daad.de/en/study-and-research-in-germany/scholarships/',
+        description: 'Extensive funding database and application portal for studying and researching in Germany.',
+        category: 'Scholarship Portal',
+        country: 'Germany',
+        isPinned: false,
+        createdAt: now,
+        updatedAt: now,
+      ),
+      PortalLinkModel(
+        id: _uuid.v4(),
+        title: 'ETS TOEFL & GRE Official Portal',
+        url: 'https://www.ets.org',
+        description: 'Official test registration, appointment booking, and score reporting for GRE and TOEFL iBT exams.',
+        category: 'Language & Tests',
+        country: 'Global',
+        isPinned: false,
+        createdAt: now,
+        updatedAt: now,
+      ),
+    ];
+  }
+
+  Future<void> addPortalLink(PortalLinkModel link) async {
+    _portalLinks.add(link);
+    notifyListeners();
+    await _repository.savePortalLinks(_portalLinks);
+  }
+
+  Future<void> updatePortalLink(PortalLinkModel link) async {
+    final idx = _portalLinks.indexWhere((l) => l.id == link.id);
+    if (idx >= 0) {
+      _portalLinks[idx] = link;
+      notifyListeners();
+      await _repository.savePortalLinks(_portalLinks);
+    }
+  }
+
+  Future<void> deletePortalLink(String id) async {
+    _portalLinks.removeWhere((l) => l.id == id);
+    notifyListeners();
+    await _repository.savePortalLinks(_portalLinks);
+  }
+
+  Future<void> togglePinPortalLink(String id) async {
+    final idx = _portalLinks.indexWhere((l) => l.id == id);
+    if (idx >= 0) {
+      final current = _portalLinks[idx];
+      _portalLinks[idx] = current.copyWith(
+        isPinned: !current.isPinned,
+        updatedAt: DateTime.now().toIso8601String(),
+      );
+      notifyListeners();
+      await _repository.savePortalLinks(_portalLinks);
+    }
   }
 }

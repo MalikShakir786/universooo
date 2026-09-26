@@ -7,6 +7,7 @@ import '../models/contact_model.dart';
 import '../models/email_account_model.dart';
 import '../models/country_stat_model.dart';
 import '../models/app_settings_model.dart';
+import '../models/portal_link_model.dart';
 
 abstract class ApplicationRepository {
   Future<void> initialize();
@@ -15,6 +16,9 @@ abstract class ApplicationRepository {
   Future<void> addApplication(ApplicationModel application);
   Future<void> updateApplication(ApplicationModel application);
   Future<void> deleteApplication(String id);
+
+  Future<List<PortalLinkModel>> loadPortalLinks();
+  Future<void> savePortalLinks(List<PortalLinkModel> links);
 
   Future<List<StatusHistoryModel>> loadStatusHistory([String? applicationId]);
   Future<void> saveStatusHistory(List<StatusHistoryModel> history);
