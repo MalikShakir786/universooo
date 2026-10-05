@@ -16,6 +16,7 @@ class _UniversityNotesScreenState extends State<UniversityNotesScreen> {
   List<UniversityNoteModel> _savedNotes = [];
   bool _isLoading = true;
   String _expandedUniversity = '';
+  String? _selectedCountry;
 
   @override
   void initState() {
@@ -88,9 +89,13 @@ class _UniversityNotesScreenState extends State<UniversityNotesScreen> {
     final controller = Provider.of<ApplicationController>(context);
 
     final Set<String> allUniversities = {};
+    final Map<String, String> universityToCountry = {};
     for (var app in controller.applications) {
       if (app.universityName.trim().isNotEmpty) {
         allUniversities.add(app.universityName.trim());
+        if (app.country.trim().isNotEmpty) {
+          universityToCountry[app.universityName.trim()] = app.country.trim();
+        }
       }
     }
     for (var note in _savedNotes) {
@@ -102,6 +107,14 @@ class _UniversityNotesScreenState extends State<UniversityNotesScreen> {
     final query = _searchController.text.toLowerCase();
     List<String> displayList = allUniversities.toList();
     
+    final availableCountries = universityToCountry.values.toSet().toList()..sort();
+
+    if (_selectedCountry != null) {
+      displayList = displayList.where((u) {
+        return universityToCountry[u] == _selectedCountry;
+      }).toList();
+    }
+
     if (query.isNotEmpty && !displayList.any((u) => u.toLowerCase() == query)) {
       displayList.insert(0, _searchController.text.trim());
     }
@@ -169,7 +182,46 @@ class _UniversityNotesScreenState extends State<UniversityNotesScreen> {
               ),
               onChanged: (val) => setState(() {}),
             ),
-            const SizedBox(height: 20),
+            if (availableCountries.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 32,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: availableCountries.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      final isSelected = _selectedCountry == null;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: FilterChip(
+                          label: const Text('All Countries', style: TextStyle(fontSize: 12)),
+                          selected: isSelected,
+                          onSelected: (_) => setState(() => _selectedCountry = null),
+                          visualDensity: VisualDensity.compact,
+                          selectedColor: AppTheme.macosBlue.withAlpha(isDark ? 80 : 40),
+                          checkmarkColor: isDark ? Colors.white : AppTheme.macosBlue,
+                        ),
+                      );
+                    }
+                    final country = availableCountries[index - 1];
+                    final isSelected = _selectedCountry == country;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: FilterChip(
+                        label: Text(country, style: const TextStyle(fontSize: 12)),
+                        selected: isSelected,
+                        onSelected: (_) => setState(() => _selectedCountry = country),
+                        visualDensity: VisualDensity.compact,
+                        selectedColor: AppTheme.macosBlue.withAlpha(isDark ? 80 : 40),
+                        checkmarkColor: isDark ? Colors.white : AppTheme.macosBlue,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+            const SizedBox(height: 16),
             Expanded(
               child: _isLoading ? const Center(child: CircularProgressIndicator()) : ListView.builder(
                 itemCount: displayList.length,
