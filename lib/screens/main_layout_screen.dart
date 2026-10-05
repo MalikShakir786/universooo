@@ -16,6 +16,7 @@ import 'documents_hub_screen.dart';
 import 'portals_screen.dart';
 import 'scholarships_screen.dart';
 import 'settings_screen.dart';
+import 'university_notes_screen.dart';
 
 enum NavigationSection {
   dashboard,
@@ -27,6 +28,7 @@ enum NavigationSection {
   portals,
   comparison,
   analytics,
+  universities,
   settings,
 }
 
@@ -301,6 +303,13 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                   icon: Icons.bar_chart_outlined,
                   activeIcon: Icons.bar_chart,
                   label: 'Analytics',
+                  isDark: isDark,
+                ),
+                _buildNavItem(
+                  section: NavigationSection.universities,
+                  icon: Icons.menu_book_outlined,
+                  activeIcon: Icons.menu_book,
+                  label: 'Universities',
                   isDark: isDark,
                 ),
                 const SizedBox(height: 16),
@@ -613,6 +622,8 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
         );
       case NavigationSection.analytics:
         return const AnalyticsScreen();
+      case NavigationSection.universities:
+        return const UniversityNotesScreen();
       case NavigationSection.settings:
         return const SettingsScreen();
     }
