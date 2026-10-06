@@ -5,18 +5,21 @@ import '../services/excel_database_service.dart';
 class UniversityNoteModel {
   final String universityName;
   final String details;
+  final String country;
 
-  UniversityNoteModel({required this.universityName, required this.details});
+  UniversityNoteModel({required this.universityName, required this.details, this.country = ''});
 
   Map<String, dynamic> toJson() => {
         'universityName': universityName,
         'details': details,
+        'country': country,
       };
 
   factory UniversityNoteModel.fromJson(Map<String, dynamic> json) =>
       UniversityNoteModel(
         universityName: json['universityName'] ?? '',
         details: json['details'] ?? '',
+        country: json['country'] ?? '',
       );
 }
 

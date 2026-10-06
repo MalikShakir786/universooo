@@ -32,52 +32,100 @@ class _UniversityNotesScreenState extends State<UniversityNotesScreen> {
     });
   }
 
-  Future<void> _saveNote(String university, String details) async {
+  Future<void> _saveNote(String university, String details, {String? country}) async {
     final index = _savedNotes.indexWhere((n) => n.universityName == university);
     if (index >= 0) {
-      _savedNotes[index] = UniversityNoteModel(universityName: university, details: details);
+      final existingCountry = _savedNotes[index].country;
+      _savedNotes[index] = UniversityNoteModel(universityName: university, details: details, country: country ?? existingCountry);
     } else {
-      _savedNotes.add(UniversityNoteModel(universityName: university, details: details));
+      _savedNotes.add(UniversityNoteModel(universityName: university, details: details, country: country ?? ''));
     }
+    await UniversityNoteService.saveNotes(_savedNotes);
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _deleteNote(String university) async {
+    _savedNotes.removeWhere((n) => n.universityName == university);
     await UniversityNoteService.saveNotes(_savedNotes);
     if (mounted) setState(() {});
   }
 
   void _showAddUniversityDialog() {
     final TextEditingController nameController = TextEditingController();
+    String? selectedCountry;
+    
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Add New University'),
-          content: TextField(
-            controller: nameController,
-            decoration: const InputDecoration(
-              labelText: 'University Name',
-              border: OutlineInputBorder(),
-            ),
-            autofocus: true,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () {
-                final name = nameController.text.trim();
-                if (name.isNotEmpty) {
-                  _saveNote(name, '');
-                  setState(() {
-                    _expandedUniversity = name;
-                    _searchController.clear();
-                  });
-                }
-                Navigator.of(context).pop();
-              },
-              child: const Text('Add'),
-            ),
-          ],
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            final appCtrl = Provider.of<ApplicationController>(context, listen: false);
+            final countries = appCtrl.availableCountries;
+            
+            return AlertDialog(
+              title: const Text('Add New University'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'University Name',
+                      border: OutlineInputBorder(),
+                    ),
+                    autofocus: true,
+                  ),
+                  const SizedBox(height: 16),
+                  Autocomplete<String>(
+                    optionsBuilder: (TextEditingValue textEditingValue) {
+                      if (textEditingValue.text.isEmpty) {
+                        return countries;
+                      }
+                      return countries.where((String option) {
+                        return option.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                      });
+                    },
+                    onSelected: (String selection) {
+                      selectedCountry = selection;
+                    },
+                    fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                      controller.addListener(() {
+                        selectedCountry = controller.text;
+                      });
+                      return TextField(
+                        controller: controller,
+                        focusNode: focusNode,
+                        decoration: const InputDecoration(
+                          labelText: 'Country (Optional)',
+                          border: OutlineInputBorder(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    final name = nameController.text.trim();
+                    if (name.isNotEmpty) {
+                      _saveNote(name, '', country: selectedCountry);
+                      setState(() {
+                        _expandedUniversity = name;
+                        _searchController.clear();
+                      });
+                    }
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Add'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -100,7 +148,11 @@ class _UniversityNotesScreenState extends State<UniversityNotesScreen> {
     }
     for (var note in _savedNotes) {
       if (note.universityName.trim().isNotEmpty) {
-        allUniversities.add(note.universityName.trim());
+        final uName = note.universityName.trim();
+        allUniversities.add(uName);
+        if (note.country.trim().isNotEmpty) {
+          universityToCountry.putIfAbsent(uName, () => note.country.trim());
+        }
       }
     }
 
@@ -240,7 +292,33 @@ class _UniversityNotesScreenState extends State<UniversityNotesScreen> {
                     ),
                     child: ExpansionTile(
                       key: Key(univ),
-                      title: Text(univ, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                      title: Row(
+                        children: [
+                          Expanded(child: Text(univ, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15))),
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline, size: 18),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Text('Delete University'),
+                                  content: Text('Are you sure you want to delete "$univ" from your notes?'),
+                                  actions: [
+                                    TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                                    FilledButton(
+                                      onPressed: () {
+                                        _deleteNote(univ);
+                                        Navigator.pop(ctx);
+                                      },
+                                      child: const Text('Delete'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                       initiallyExpanded: isExpanded,
                       onExpansionChanged: (expanded) {
                         setState(() {
